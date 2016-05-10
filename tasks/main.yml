@@ -1,0 +1,42 @@
+---
+# tasks file for lucazz.k8s-node
+- name: main.yml | Installing dependencies
+  include: RedHat.yml
+  when: ansible_os_family == "RedHat"
+
+- name: main.yml | Installing dependencies
+  include: Debian.yml
+  when: ansible_os_family == "Debian"
+
+- name: main.yml | Templating out Kubernetes node manifest
+  template:
+    src: manifests.j2
+    dest: /etc/kubernetes/manifests
+    owner: root
+    group: root
+    mode: 0644
+
+- name: main.yml | Installing Kubernetes label maker
+  template:
+    src: mk-kube-labels.py.j2
+    dest: /usr/bin/mk-kube-labels.py
+    owner: root
+    group: root
+    mode: 0700
+
+- name: main.yml | Checking wether this node is labeled or not
+  shell: "curl -s http://{{ k8s_master.address }}:{{ k8s_master.port }}/api/v1/nodes/{{ ansible_default_ipv4.address }} | jq '.metadata.labels' | grep running"
+  register: k8s.labels
+  ignore_errors: True
+
+- name: main.yml | Labeling node
+  shell: "/usr/bin/mk-kube-labels.py"
+  when: k8s.labels|failed
+
+- name: main.yml | Templating out a simple deployment controller
+  template:
+    src: "{{ deployment_controller.src }}"
+    dest: "{{ deployment_controller.dest}}"
+
+- name: main.yml | Creating deployment controller
+  shell: "kubectl create -f {{ deployment_controller.dest }} --record"

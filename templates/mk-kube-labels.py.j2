@@ -1,0 +1,67 @@
+#!/usr/bin/env python
+
+import requests
+import re
+
+#
+# defaults
+info = {
+	'ssd': False,
+	'region': 'us-east-1',
+	'az': 'us-east-1a',
+	'ebs': False,
+	'public_ip': False,
+}
+
+instance_type = requests.get("http://169.254.169.254/latest/meta-data/instance-type").text
+placement = requests.get("http://169.254.169.254/latest/meta-data/placement/availability-zone").text
+ip = requests.get("http://169.254.169.254/latest/meta-data/local-ipv4").text
+
+gen = int(re.compile(r'[^\d.]+').sub('', instance_type.split(".")[0]))
+
+if gen == 3 or instance_type.split(".")[0] == 'i2':
+	info['ssd'] = True
+
+#
+# getting region and AZ
+info['az'] = placement
+info['region'] = placement[:-1]
+
+#
+# set the patch headers
+headers = {'Content-Type': 'application/strategic-merge-patch+json'}
+
+#
+# node is running by default
+payload = '{"metadata": {"labels": {"running": "yes"}}}'
+r = requests.patch("http://10.33.3.10:8080/api/v1/nodes/%s" % (ip), headers=headers, data=payload)
+
+
+#
+# create region label
+payload = '{"metadata": {"labels": {"region": "%s"}}}' % info['region']
+r = requests.patch("http://10.33.3.10:8080/api/v1/nodes/%s" % (ip), headers=headers, data=payload)
+
+
+#
+# create AZ label
+payload = '{"metadata": {"labels": {"az": "%s"}}}' % info['az']
+r = requests.patch("http://10.33.3.10:8080/api/v1/nodes/%s" % (ip), headers=headers, data=payload)
+
+
+#
+# create ssd label
+payload = '{"metadata": {"labels": {"ssd": "%s"}}}' % info['ssd']
+r = requests.patch("http://10.33.3.10:8080/api/v1/nodes/%s" % (ip), headers=headers, data=payload)
+
+
+#
+# create public IP label
+payload = '{"metadata": {"labels": {"ebs": "%s"}}}' % info['ebs']
+r = requests.patch("http://10.33.3.10:8080/api/v1/nodes/%s" % (ip), headers=headers, data=payload)
+
+
+#
+# create EBS label
+payload = '{"metadata": {"labels": {"public_ip": "%s"}}}' % info['public_ip']
+r = requests.patch("http://10.33.3.10:8080/api/v1/nodes/%s" % (ip), headers=headers, data=payload)

@@ -1,0 +1,7 @@
+- name: Debian.yml | Installing required packages
+  apt:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - nginx
+    - jq

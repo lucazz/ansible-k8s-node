@@ -1,0 +1,10 @@
+---
+- hosts: localhost
+  remote_user: root
+  roles:
+    - lucazz.common
+    - lucazz.etcd
+    - lucazz.calico
+    - lucazz.k8s-kubelet
+    - lucazz.k8s-master
+    - lucazz.k8s-node

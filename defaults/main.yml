@@ -1,0 +1,6 @@
+---
+# defaults file for lucazz.k8s-node
+deployment_controller:
+  src: "template-deployment.yaml.j2"
+  dest: "/tmp/nginx-test-deployment.yaml"
+
