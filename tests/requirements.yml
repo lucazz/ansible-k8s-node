@@ -6,5 +6,5 @@
   src: https://github.com/lucazz/ansible-calico.git
 - name: lucazz.k8s-kubelet
   src: https://github.com/lucazz/ansible-k8s-kubelet.git
-- name: lucazz.k8s-master
-  src: https://github.com/lucazz/ansible-k8s-master.git
+- name: lucazz.k8s-node
+  src: https://github.com/lucazz/ansible-k8s-node.git
