@@ -1,31 +1,22 @@
 Kubernetes Node Role
 =========
 
-[![Build Status](https://travis-ci.org/lucazz/ansible-k8s-master.svg?branch=master)](https://travis-ci.org/lucazz/ansible-k8s-master)
+[![Build Status](https://travis-ci.org/lucazz/ansible-k8s-node.svg?branch=master)](https://travis-ci.org/lucazz/ansible-k8s-node)
 
-Simple Ansible role to installs and configures a Kubernetes Master
+Simple Ansible role to installs and configures a Kubernetes node
 
 Requirements
 ------------
 
-This role only requires Ansible version 1.9+
+This role only requires Ansible version 2+
 
 Role Variables
 --------------
 
-`containers.cidr: "192.168.0.0/16"`
+`deployment_controller.src: "template-deployment.yaml.j2"`
 
-`etcd.address: "{{ ansible_default_ipv4.address }}"`
+`deployment_controller.dest: "/tmp/nginx-test-deployment.yaml"`
 
-`etcd.port: 2379`
-
-`k8s.master_address: "{{ ansible_default_ipv4.address }}"`
-
-`k8s.cidr: "10.100.0.0/16"`
-
-`k8s.port: 8080`
-
-`k8s.bind_mask: "0.0.0.0"`
 
 Dependencies
 ------------
@@ -34,20 +25,23 @@ This role depends on the following roles:
 
 *   [lucazz.etcd](https://github.com/lucazz/ansible-etcd)
 *   [lucazz.calico](https://github.com/lucazz/ansible-calico)
-*   [lucazz.kubelet](#)
+*   [lucazz.k8s-kubelet](https://github.com/lucazz/ansible-k8s-kubelet)
+*   [lucazz.k8s-node](https://github.com/lucazz/ansible-k8s-node)
 
 Example Playbook
 ----------------
 
 Using this roles as as simples as:
 
-    - hosts: servers
+    ---
+    - hosts: localhost
+      remote_user: root
       roles:
         - lucazz.common
         - lucazz.etcd
         - lucazz.calico
         - lucazz.k8s-kubelet
-        - lucazz.k8s.master
+        - lucazz.k8s-node
 
 License
 -------
